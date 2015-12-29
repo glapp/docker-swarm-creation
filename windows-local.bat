@@ -1,3 +1,4 @@
+REM Remove old nodes
 docker-machine rm swarm-agent-00 swarm-agent-01 swarm-master kvstore
 
 REM Create & provision KV store
