@@ -118,7 +118,7 @@ docker-machine create \
     --swarm \
     --swarm-discovery consul://$(docker-machine ip kvstore):8500 \
     swarm-agent-aws-01
-val $(docker-machine env swarm-agent-aws-01)
+eval $(docker-machine env swarm-agent-aws-01)
 docker run \
     --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw \
@@ -146,13 +146,13 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
-cp '/home/riccardo/prometheus/prometheus-cloud/prometheus_template.yml' '/home/riccardo/prometheus/prometheus-cloud/prometheus.yml'
-sed -i s/MACHINE_1/$(docker-machine ip kvstore)/g '/home/riccardo/prometheus/prometheus-cloud/prometheus.yml'
-sed -i s/MACHINE_2/$(docker-machine ip swarm-master-do)/g '/home/riccardo/prometheus/prometheus-cloud/prometheus.yml'
-sed -i s/MACHINE_3/$(docker-machine ip swarm-agent-do-01)/g '/home/riccardo/prometheus/prometheus-cloud/prometheus.yml'
-sed -i s/MACHINE_4/$(docker-machine ip swarm-agent-aws-01)/g '/home/riccardo/prometheus/prometheus-cloud/prometheus.yml'
-sed -i s/MACHINE_5/$(docker-machine ip prometheusVM-aws)/g '/home/riccardo/prometheus/prometheus-cloud/prometheus.yml'
-docker-machine scp ~/prometheus/prometheus-cloud/prometheus.yml prometheusVM-aws:/tmp/prometheus.yml
+cp 'prometheus_template.yml' 'prometheus.yml'
+sed -i s/MACHINE_1/$(docker-machine ip kvstore)/g 'prometheus.yml'
+sed -i s/MACHINE_2/$(docker-machine ip swarm-master-do)/g 'prometheus.yml'
+sed -i s/MACHINE_3/$(docker-machine ip swarm-agent-do-01)/g 'prometheus.yml'
+sed -i s/MACHINE_4/$(docker-machine ip swarm-agent-aws-01)/g 'prometheus.yml'
+sed -i s/MACHINE_5/$(docker-machine ip prometheusVM-aws)/g 'prometheus.yml'
+docker-machine scp prometheus.yml prometheusVM-aws:/tmp/prometheus.yml
 docker run \
     -d \
     -p 19090:9090 \
