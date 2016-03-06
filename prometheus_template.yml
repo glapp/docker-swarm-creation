@@ -25,10 +25,18 @@ scrape_configs:
           group: 'prometheus_group'
       
 
-  - job_name: 'cAdvisor'
+  - job_name: 'USA'
     # Override the global default and scrape targets from this job every second.
     scrape_interval: 1s
     scrape_timeout: 10s
     target_groups:
-      - targets: ['MACHINE_1:18080', 'MACHINE_2:18080', 'MACHINE_3:18080', 'MACHINE_4:18080', 'MACHINE_5:18080']
+      - targets: ['MACHINE_3:18080', 'MACHINE_4:18080', 'MACHINE_6:18080']
+      
+      
+  - job_name: 'EU'
+    # Override the global default and scrape targets from this job every second.
+    scrape_interval: 1s
+    scrape_timeout: 10s
+    target_groups:
+      - targets: ['MACHINE_1:18080', 'MACHINE_2:18080', 'MACHINE_5:18080']
       
