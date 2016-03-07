@@ -1,50 +1,46 @@
 #!/bin/bash
 echo "Starting script"
 
-
-
 # This script creates following VMs and containers:
 #
-# 1 kvstore on Digital Ocean in EU with:
+# 1 kvstore-DO on Digital Ocean with:
 #       1 Consul server (discovery service for the swarm)
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 swarm-master-do on Digital Ocean in EU with:
+# 1 DO-master on Digital Ocean with:
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 swarm-agent-do-01 on Digital Ocean in USA with:
+# 1 DO-01 on Digital Ocean with:
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 swarm-agent-aws-01 on AWS in USA with:
+# 1 AWS-01 on AWS with:
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 swarm-agent-aws-02 on AWS in EU with:
-#       1 cAdvisor (agent for prometheus)
-#
-# 1 prometheusVM-aws on AWS in USA with:
+# 1 prometheusVM-AWS on AWS with:
 #       1 prometheus (Prometheus server)
 #       1 cAdvisor (agent for prometheus)
 #
-# Total: 6 VMs and 8 containers
+# Total: 5 VMs and 7 containers
 
 
 echo "Removing containers..."
-docker-machine rm -f kvstore
-docker-machine rm -f swarm-master-do
-docker-machine rm -f swarm-agent-do-01
-docker-machine rm -f swarm-agent-aws-01
-docker-machine rm -f swarm-agent-aws-02
-docker-machine rm -f prometheusVM-aws
+docker-machine rm -f kvstore-DO
+docker-machine rm -f DO-master
+docker-machine rm -f DO-01
+docker-machine rm -f AWS-01
+docker-machine rm -f AWS-02
+docker-machine rm -f prometheusVM-AWS
 echo "containers removed."
 
-echo "Create kvstore..."
+
+echo "Create kvstore-DO..."
 docker-machine create \
     -d digitalocean \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=ams2 \
     --digitalocean-image "debian-8-x64" \
-    kvstore
-eval $(docker-machine env kvstore)
+    kvstore-DO
+eval $(docker-machine env kvstore-DO)
 docker run \
     -d \
     -p 8400:8400 \
@@ -63,23 +59,24 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
-echo "kvstore created."
+echo "kvstore-DO created."
 
-echo "Creating swarm-master-do..."
+
+echo "Creating DO-master..."
 docker-machine create \
     -d digitalocean \
     --engine-label tier=1 \
     --engine-label region=eu \
-    --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
+    --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=ams2 \
     --digitalocean-image "debian-8-x64" \
     --swarm \
     --swarm-master \
-    --swarm-discovery consul://$(docker-machine ip kvstore):8500 \
-    swarm-master-do
-eval $(docker-machine env swarm-master-do)
+    --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
+    DO-master
+eval $(docker-machine env DO-master)
 docker run \
     --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw \
@@ -88,22 +85,22 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
-echo "swarm-master-do created."
+echo "DO-master created."
 
-echo "Creating swarm-agent-do-01..."
+echo "Creating DO-01..."
 docker-machine create \
     -d digitalocean \
     --engine-label tier=1 \
     --engine-label region=us \
-    --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
+    --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=nyc1 \
     --digitalocean-image "debian-8-x64" \
     --swarm \
-    --swarm-discovery consul://$(docker-machine ip kvstore):8500 \
-    swarm-agent-do-01
-eval $(docker-machine env swarm-agent-do-01)
+    --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
+    DO-01
+eval $(docker-machine env DO-01)
 docker run \
     --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw \
@@ -112,23 +109,23 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
-echo "swarm-agent-do-01 created."
+echo "DO-01 created."
 
-echo "Creating swarm-agent-aws-01..."
+echo "Creating AWS-01..."
 docker-machine create \
     -d amazonec2 \
     --engine-label tier=1 \
     --engine-label region=us \
-    --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
+    --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
     --amazonec2-access-key=$AWS_ACCESS_KEY \
     --amazonec2-secret-key=$AWS_SECRET_KEY \
     --amazonec2-region=us-east-1 \
     --amazonec2-zone=a \
     --swarm \
-    --swarm-discovery consul://$(docker-machine ip kvstore):8500 \
-    swarm-agent-aws-01
-eval $(docker-machine env swarm-agent-aws-01)
+    --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
+    AWS-01
+eval $(docker-machine env AWS-01)
 docker run \
     --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw \
@@ -137,23 +134,23 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
-echo "swarm-agent-aws-01 created."
+echo "AWS-01 created."
 
-echo "Creating swarm-agent-aws-02..."
+echo "Creating AWS-02..."
 docker-machine create \
     -d amazonec2 \
     --engine-label tier=1 \
     --engine-label region=eu \
-    --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
+    --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
     --amazonec2-access-key=$AWS_ACCESS_KEY \
     --amazonec2-secret-key=$AWS_SECRET_KEY \
     --amazonec2-region=eu-central-1 \
     --amazonec2-zone=a \
     --swarm \
-    --swarm-discovery consul://$(docker-machine ip kvstore):8500 \
-    swarm-agent-aws-02
-eval $(docker-machine env swarm-agent-aws-02)
+    --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
+    AWS-02
+eval $(docker-machine env AWS-02)
 docker run \
     --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw \
@@ -162,17 +159,19 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
-echo "swarm-agent-aws-02 created."
+echo "AWS-02 created."
 
-echo "Create prometheusVM-aws..."
+
+echo "Create prometheusVM-AWS..."
 docker-machine create \
     -d amazonec2 \
+    --engine-label region=US-East \
     --amazonec2-access-key=$AWS_ACCESS_KEY \
     --amazonec2-secret-key=$AWS_SECRET_KEY \
     --amazonec2-region=us-east-1 \
     --amazonec2-zone=a \
-    prometheusVM-aws
-eval $(docker-machine env prometheusVM-aws)
+    prometheusVM-AWS
+eval $(docker-machine env prometheusVM-AWS)
 docker run \
     --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw \
@@ -182,7 +181,7 @@ docker run \
     --detach=true \
     google/cadvisor:latest
 cp 'prometheus_template.yml' 'prometheus.yml'
-sed -i s/MACHINE_1/$(docker-machine ip kvstore)/g 'prometheus.yml'
+sed -i s/MACHINE_1/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
 sed -i s/MACHINE_2/$(docker-machine ip swarm-master-do)/g 'prometheus.yml'
 sed -i s/MACHINE_3/$(docker-machine ip swarm-agent-do-01)/g 'prometheus.yml'
 sed -i s/MACHINE_4/$(docker-machine ip swarm-agent-aws-01)/g 'prometheus.yml'
@@ -194,11 +193,12 @@ docker run \
     -p 19090:9090 \
     -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
-echo "prometheusVM-aws created."
+echo "prometheusVM-AWS created."
 
-eval $(docker-machine env --swarm swarm-master-do)
+eval $(docker-machine env --swarm DO-master)
 docker info
 
-echo "You may wanna point this client (terminal) to the swarm-master-do with the following command: eval \$(docker-machine env --swarm swarm-master-do)"
+echo "You may wanna point this client (terminal) to the DO-master with the following command: eval \$(docker-machine env --swarm DO-master)"
 
 echo "Script is done!"
+
