@@ -40,7 +40,7 @@ echo "containers removed."
 echo "Create kvstore..."
 docker-machine create \
     -d digitalocean \
-    --digitalocean-access-token=<key--------------------------------> \
+    --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=ams2 \
     --digitalocean-image "debian-8-x64" \
     kvstore
@@ -72,7 +72,7 @@ docker-machine create \
     --engine-label region=eu \
     --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
-    --digitalocean-access-token=<key--------------------------------> \
+    --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=ams2 \
     --digitalocean-image "debian-8-x64" \
     --swarm \
@@ -97,7 +97,7 @@ docker-machine create \
     --engine-label region=us \
     --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
-    --digitalocean-access-token=<key--------------------------------> \
+    --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=nyc1 \
     --digitalocean-image "debian-8-x64" \
     --swarm \
@@ -121,8 +121,8 @@ docker-machine create \
     --engine-label region=us \
     --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
-    --amazonec2-access-key=<key--------------------------------> \
-    --amazonec2-secret-key=<key--------------------------------> \
+    --amazonec2-access-key=$AWS_ACCESS_KEY \
+    --amazonec2-secret-key=$AWS_SECRET_KEY \
     --amazonec2-region=us-east-1 \
     --amazonec2-zone=a \
     --swarm \
@@ -146,8 +146,8 @@ docker-machine create \
     --engine-label region=eu \
     --engine-opt "cluster-store consul://$(docker-machine ip kvstore):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
-    --amazonec2-access-key=<key--------------------------------> \
-    --amazonec2-secret-key=<key--------------------------------> \
+    --amazonec2-access-key=$AWS_ACCESS_KEY \
+    --amazonec2-secret-key=$AWS_SECRET_KEY \
     --amazonec2-region=eu-central-1 \
     --amazonec2-zone=a \
     --swarm \
@@ -167,8 +167,8 @@ echo "swarm-agent-aws-02 created."
 echo "Create prometheusVM-aws..."
 docker-machine create \
     -d amazonec2 \
-    --amazonec2-access-key=<key--------------------------------> \
-    --amazonec2-secret-key=<key--------------------------------> \
+    --amazonec2-access-key=$AWS_ACCESS_KEY \
+    --amazonec2-secret-key=$AWS_SECRET_KEY \
     --amazonec2-region=us-east-1 \
     --amazonec2-zone=a \
     prometheusVM-aws
