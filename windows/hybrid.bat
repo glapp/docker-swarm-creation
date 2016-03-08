@@ -1,5 +1,5 @@
 REM Remove old nodes
-docker-machine rm -y swarm-agent-00 swarm-agent-DO swarm-master kvstore
+docker-machine rm -y MASTER-DO AWS DO
 
 REM Set credential variables
 FOR /f "tokens=*" %%i IN (..\credentials) DO SET %%i
