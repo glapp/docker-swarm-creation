@@ -1,5 +1,5 @@
 REM Remove old nodes
-docker-machine rm -y DO-MASTER AWS AWS-02 DO
+docker-machine rm -y DO-MASTER AWS DO-01 DO-02
 
 REM Set credential variables
 FOR /f "tokens=*" %%i IN (..\credentials) DO SET %%i
