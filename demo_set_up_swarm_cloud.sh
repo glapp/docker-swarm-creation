@@ -7,13 +7,16 @@ echo "Starting script"
 #       1 Consul server (discovery service for the swarm)
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 DO-master on Digital Ocean with:
+# 1 DO-master on Digital Ocean (region eu, tier 1) with:
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 DO-01 on Digital Ocean with:
+# 1 DO-01 on Digital Ocean (region us, tier 1) with:
 #       1 cAdvisor (agent for prometheus)
 #
-# 1 AWS-01 on AWS with:
+# 1 DO-02 on Digital Ocean (region eu, tier 2) with:
+#       1 cAdvisor (agent for prometheus)
+#
+# 1 AWS-01 on AWS (region us, tier 1) with:
 #       1 cAdvisor (agent for prometheus)
 #
 # 1 prometheusVM-AWS on AWS with:
@@ -24,12 +27,7 @@ echo "Starting script"
 
 
 echo "Removing containers..."
-docker-machine rm -f kvstore-DO
-docker-machine rm -f DO-master
-docker-machine rm -f DO-01
-docker-machine rm -f AWS-01
-docker-machine rm -f AWS-02
-docker-machine rm -f prometheusVM-AWS
+docker-machine rm -y kvstore-DO DO-master DO-01 DO-02 AWS-01 prometheusVM-AWS
 echo "containers removed."
 
 
@@ -87,6 +85,7 @@ docker run \
     google/cadvisor:latest
 echo "DO-master created."
 
+
 echo "Creating DO-01..."
 docker-machine create \
     -d digitalocean \
@@ -110,6 +109,33 @@ docker run \
     --detach=true \
     google/cadvisor:latest
 echo "DO-01 created."
+
+
+echo "Creating DO-02..."
+docker-machine create \
+    -d digitalocean \
+    --engine-label tier=2 \
+    --engine-label region=eu \
+    --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
+    --engine-opt "cluster-advertise eth0:2376" \
+    --digitalocean-access-token=$DO_TOKEN \
+    --digitalocean-region=ams2 \
+    --digitalocean-image "debian-8-x64" \
+    --digitalocean-size=1gb \
+    --swarm \
+    --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
+    DO-01
+eval $(docker-machine env DO-02)
+docker run \
+    --volume=/:/rootfs:ro \
+    --volume=/var/run:/var/run:rw \
+    --volume=/sys:/sys:ro \
+    --volume=/var/lib/docker/:/var/lib/docker:ro \
+    --publish=18080:8080 \
+    --detach=true \
+    google/cadvisor:latest
+echo "DO-02 created."
+
 
 echo "Creating AWS-01..."
 docker-machine create \
@@ -135,31 +161,6 @@ docker run \
     --detach=true \
     google/cadvisor:latest
 echo "AWS-01 created."
-
-echo "Creating AWS-02..."
-docker-machine create \
-    -d amazonec2 \
-    --engine-label tier=1 \
-    --engine-label region=eu \
-    --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
-    --engine-opt "cluster-advertise eth0:2376" \
-    --amazonec2-access-key=$AWS_ACCESS_KEY \
-    --amazonec2-secret-key=$AWS_SECRET_KEY \
-    --amazonec2-region=eu-central-1 \
-    --amazonec2-zone=a \
-    --swarm \
-    --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
-    AWS-02
-eval $(docker-machine env AWS-02)
-docker run \
-    --volume=/:/rootfs:ro \
-    --volume=/var/run:/var/run:rw \
-    --volume=/sys:/sys:ro \
-    --volume=/var/lib/docker/:/var/lib/docker:ro \
-    --publish=18080:8080 \
-    --detach=true \
-    google/cadvisor:latest
-echo "AWS-02 created."
 
 
 echo "Create prometheusVM-AWS..."
