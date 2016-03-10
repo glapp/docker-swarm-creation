@@ -23,7 +23,7 @@ echo "Starting script"
 #       1 prometheus (Prometheus server)
 #       1 cAdvisor (agent for prometheus)
 #
-# Total: 5 VMs and 7 containers
+# Total: 6 VMs and 8 containers
 
 
 echo "Removing containers..."
