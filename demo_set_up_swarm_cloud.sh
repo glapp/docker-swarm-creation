@@ -124,7 +124,7 @@ docker-machine create \
     --digitalocean-size=1gb \
     --swarm \
     --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
-    DO-01
+    DO-02
 eval $(docker-machine env DO-02)
 docker run \
     --volume=/:/rootfs:ro \
@@ -183,11 +183,11 @@ docker run \
     google/cadvisor:latest
 cp 'prometheus_template.yml' 'prometheus.yml'
 sed -i s/MACHINE_1/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
-sed -i s/MACHINE_2/$(docker-machine ip swarm-master-do)/g 'prometheus.yml'
-sed -i s/MACHINE_3/$(docker-machine ip swarm-agent-do-01)/g 'prometheus.yml'
-sed -i s/MACHINE_4/$(docker-machine ip swarm-agent-aws-01)/g 'prometheus.yml'
-sed -i s/MACHINE_5/$(docker-machine ip swarm-agent-aws-02)/g 'prometheus.yml'
-sed -i s/MACHINE_6/$(docker-machine ip prometheusVM-aws)/g 'prometheus.yml'
+sed -i s/MACHINE_2/$(docker-machine ip DO-master)/g 'prometheus.yml'
+sed -i s/MACHINE_3/$(docker-machine ip DO-01)/g 'prometheus.yml'
+sed -i s/MACHINE_4/$(docker-machine ip DO-02)/g 'prometheus.yml'
+sed -i s/MACHINE_5/$(docker-machine ip AWS-01)/g 'prometheus.yml'
+sed -i s/MACHINE_6/$(docker-machine ip prometheusVM-AWS)/g 'prometheus.yml'
 docker-machine scp prometheus.yml prometheusVM-aws:/tmp/prometheus.yml
 docker run \
     -d \
