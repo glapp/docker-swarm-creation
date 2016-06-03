@@ -33,4 +33,7 @@ FOR /f "tokens=*" %%i IN ('docker-machine env --shell=cmd swarm-agent-01') DO %%
 docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %SWARM_AGENT_01_IP% -internal consul://%KVSTORE%:8500
 REM docker-machine ssh swarm-agent-01 "echo 'ifconfig eth1 %SWARM_AGENT_01% netmask 255.255.255.0 broadcast 192.168.99.255 up' | sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null"
 
+FOR /f "tokens=*" %%i IN ('docker-machine env --shell=cmd --swarm swarm-master') DO %%i
+docker pull clabs/haproxylb:0.7
+
 PAUSE
