@@ -20,17 +20,17 @@ FOR /f %%i IN ('docker-machine ip swarm-agent-01') DO SET SWARM_AGENT_01_IP=%%i
 
 REM Provision swarm-master
 FOR /f "tokens=*" %%i IN ('docker-machine env --shell=cmd swarm-master') DO %%i
-docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-master gliderlabs/registrator:latest -ip %SWARM_MASTER_IP% consul://%KVSTORE%:8500
+docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-master gliderlabs/registrator:latest -ip %SWARM_MASTER_IP% -internal consul://%KVSTORE%:8500
 REM docker-machine ssh swarm-master "echo 'ifconfig eth1 %SWARM_MASTER% netmask 255.255.255.0 broadcast 192.168.99.255 up' | sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null"
 
 REM Provision swarm-agent-00
 FOR /f "tokens=*" %%i IN ('docker-machine env --shell=cmd swarm-agent-00') DO %%i
-docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %SWARM_AGENT_00_IP% consul://%KVSTORE%:8500
+docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %SWARM_AGENT_00_IP% -internal consul://%KVSTORE%:8500
 REM docker-machine ssh swarm-agent-00 "echo 'ifconfig eth1 %SWARM_AGENT_00% netmask 255.255.255.0 broadcast 192.168.99.255 up' | sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null"
 
 REM Provision swarm-agent-01
 FOR /f "tokens=*" %%i IN ('docker-machine env --shell=cmd swarm-agent-01') DO %%i
-docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %SWARM_AGENT_01_IP% consul://%KVSTORE%:8500
+docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %SWARM_AGENT_01_IP% -internal consul://%KVSTORE%:8500
 REM docker-machine ssh swarm-agent-01 "echo 'ifconfig eth1 %SWARM_AGENT_01% netmask 255.255.255.0 broadcast 192.168.99.255 up' | sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null"
 
 PAUSE
