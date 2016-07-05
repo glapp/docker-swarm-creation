@@ -1,0 +1,29 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s # By default, scrape targets every 15 seconds.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  # external_labels:
+    # monitor: 'codelab-monitor'
+
+#rule_files:
+#  - 'prometheus.rules'
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: cadvisor
+    # Override the global default and scrape targets from this job every second.
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    # consul_sd_configs:
+    # - server: 192.168.99.100:8500
+    #   services:
+    #   - cadvsior
+    static_configs:
+    - targets:
+      - MACHINE_1:18080
+      - MACHINE_2:18080
+      - MACHINE_3:18080
+      - MACHINE_4:18080
