@@ -37,11 +37,7 @@ start=$(date +"%T")
 echo "Current time : $start"
 
 echo "set enviornment variables..."
-source credentials
-export $DO_TOKEN
-export $AWS_ACCESS_KEY
-export $AWS_SECRET_KEY
-
+source ../credentials
 
 echo "Create kvstore-DO..."
 docker-machine create \
@@ -233,7 +229,7 @@ docker run \
     -internal consul://$(docker-machine ip kvstore-DO):8500
 echo "AWS-01 created."
 
-
+: <<'END_COMMENT'
 echo "Create prometheusVM-DO..."
 docker-machine create \
     -d digitalocean \
@@ -249,25 +245,30 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
+END_COMMENT
+
+eval $(docker-machine env kvstore-DO)
+
 cp '../prometheus_template.yml' 'prometheus.yml'
 sed -i '' s/MACHINE_1/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
 sed -i '' s/MACHINE_2/$(docker-machine ip DO-master)/g 'prometheus.yml'
 sed -i '' s/MACHINE_3/$(docker-machine ip DO-01)/g 'prometheus.yml'
 sed -i '' s/MACHINE_4/$(docker-machine ip AWS-01)/g 'prometheus.yml'
 #sed -i '' s/MACHINE_5/$(docker-machine ip gc01)/g 'prometheus.yml'
-sed -i '' s/MACHINE_6/$(docker-machine ip prometheusVM-DO)/g 'prometheus.yml'
-docker-machine scp prometheus.yml prometheusVM-DO:/tmp/prometheus.yml
+sed -i '' s/MACHINE_6/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
+docker-machine scp prometheus.yml kvstore-DO:/tmp/prometheus.yml
 docker run \
     -d \
     -p 19090:9090 \
     -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
-echo "prometheusVM-DO created."
+#echo "prometheusVM-DO created."
 
 eval $(docker-machine env --swarm DO-master)
 docker info
 
 echo "You may wanna point this client (terminal) to the DO-master with the following command: eval \$(docker-machine env --swarm DO-master)"
+eval $(docker-machine env --swarm DO-master)
 
 echo "Start time : $start"
 end=$(date +"%T")
