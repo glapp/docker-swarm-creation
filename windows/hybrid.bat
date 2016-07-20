@@ -28,18 +28,39 @@ FOR /f %%i IN ('docker-machine ip DO-02') DO SET DO_02_IP=%%i
 
 REM Provision DO-MASTER
 FOR /f "tokens=*" %%i IN ('docker-machine env DO-MASTER') DO %%i
-docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-master gliderlabs/registrator:latest -ip %DO_MASTER_IP% consul://%KVSTORE%:8500
+docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h DO-MASTER gliderlabs/registrator:latest -ip %DO_MASTER_IP% -internal consul://%KVSTORE%:8500
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=18080:8080 --detach=true google/cadvisor:latest
 
 REM Provision AWS
 FOR /f "tokens=*" %%i IN ('docker-machine env AWS') DO %%i
-docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %AWS_IP% consul://%KVSTORE%:8500
+docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h AWS gliderlabs/registrator:latest -ip %AWS_IP% -internal consul://%KVSTORE%:8500
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=18080:8080 --detach=true google/cadvisor:latest
 
 REM Provision DO-01
 FOR /f "tokens=*" %%i IN ('docker-machine env DO-01') DO %%i
-docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %DO_01_IP% consul://%KVSTORE%:8500
+docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h DO-01 gliderlabs/registrator:latest -ip %DO_01_IP% -internal consul://%KVSTORE%:8500
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=18080:8080 --detach=true google/cadvisor:latest
 
 REM Provision DO-02
 FOR /f "tokens=*" %%i IN ('docker-machine env DO-02') DO %%i
-docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %DO_02_IP% consul://%KVSTORE%:8500
+docker run -d --restart=always --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h DO-02 gliderlabs/registrator:latest -ip %DO_02_IP% -internal consul://%KVSTORE%:8500
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=18080:8080 --detach=true google/cadvisor:latest
+
+FOR /f "tokens=*" %%i IN ('docker-machine env --swarm DO-MASTER') DO %%i
+docker pull clabs/haproxylb:0.7
+
+REM Set up prometheus
+FOR /f "tokens=*" %%i IN ('docker-machine env kvstore') DO %%i
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=18080:8080 --detach=true google/cadvisor:latest
+COPY prometheus_template.yml prometheus.yml
+sed -i 's/MACHINE_1/%DO_MASTER_IP%/g' prometheus.yml
+sed -i 's/MACHINE_2/%AWS_IP%/g' prometheus.yml
+sed -i 's/MACHINE_3/%DO_01_IP%/g' prometheus.yml
+sed -i 's/MACHINE_4/%DO_02_IP%/g' prometheus.yml
+docker-machine scp prometheus.yml kvstore:/tmp/prometheus.yml
+docker run -d -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+
+REM Delete temp prometheus file
+DEL prometheus.yml
 
 PAUSE

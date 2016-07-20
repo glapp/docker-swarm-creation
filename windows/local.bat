@@ -32,7 +32,7 @@ REM docker-machine ssh swarm-agent-00 "echo 'ifconfig eth1 %SWARM_AGENT_00% netm
 
 REM Provision swarm-agent-01
 FOR /f "tokens=*" %%i IN ('docker-machine env swarm-agent-01') DO %%i
-docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-00 gliderlabs/registrator:latest -ip %SWARM_AGENT_01_IP% -internal consul://%KVSTORE%:8500
+docker run -d --name=registrator --volume=/var/run/docker.sock:/tmp/docker.sock -h swarm-agent-01 gliderlabs/registrator:latest -ip %SWARM_AGENT_01_IP% -internal consul://%KVSTORE%:8500
 docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=18080:8080 --detach=true google/cadvisor:latest
 REM docker-machine ssh swarm-agent-01 "echo 'ifconfig eth1 %SWARM_AGENT_01% netmask 255.255.255.0 broadcast 192.168.99.255 up' | sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null"
 
