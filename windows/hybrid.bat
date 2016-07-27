@@ -9,7 +9,7 @@ IF NOT DEFINED AWS_ACCESS_KEY (EXIT /b)
 IF NOT DEFINED AWS_SECRET_KEY (EXIT /b)
 
 REM Create & provision KV store
-docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN% kvstore
+docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN% --digitalocean-image "debian-8-x64" kvstore
 FOR /f %%i IN ('docker-machine ip kvstore') DO SET KVSTORE=%%i
 FOR /f "tokens=*" %%i IN ('docker-machine env kvstore') DO %%i
 docker run -d --restart=always --net=host progrium/consul --server -bootstrap-expect 1
