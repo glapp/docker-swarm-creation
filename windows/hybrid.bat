@@ -63,4 +63,11 @@ docker run -d -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.ym
 REM Delete temp prometheus file
 DEL prometheus.yml
 
+REM Prepare local for docker deployment of the project
+docker-machine create -d virtualbox --virtualbox-no-vtx-check local
+FOR /f "tokens=*" %%i IN ('docker-machine env local') DO %%i
+
+REM Set Swarm-Master ENV
+SET SWARM_HOST=%DO_MASTER_IP%
+
 PAUSE
