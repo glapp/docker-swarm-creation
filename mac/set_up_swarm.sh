@@ -134,13 +134,14 @@ END_COMMENT
 echo "Creating DO-01..."
 docker-machine create \
     -d digitalocean \
-    --engine-label tier=1 \
+    --engine-label tier=2 \
     --engine-label region=us \
     --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=nyc1 \
     --digitalocean-image "debian-8-x64" \
+    --digitalocean-size=2gb \
     --swarm \
     --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
     DO-01
@@ -200,7 +201,7 @@ END_COMMENT
 echo "Creating AWS-01..."
 docker-machine create \
     -d amazonec2 \
-    --engine-label tier=1 \
+    --engine-label tier=2 \
     --engine-label region=us \
     --engine-opt "cluster-store consul://$(docker-machine ip kvstore-DO):8500" \
     --engine-opt "cluster-advertise eth0:2376" \
@@ -256,6 +257,7 @@ sed -i '' s/MACHINE_3/$(docker-machine ip DO-01)/g 'prometheus.yml'
 sed -i '' s/MACHINE_4/$(docker-machine ip AWS-01)/g 'prometheus.yml'
 #sed -i '' s/MACHINE_5/$(docker-machine ip gc01)/g 'prometheus.yml'
 sed -i '' s/MACHINE_6/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
+sed -i '' s/COST_METRICS/54.246.169.99/g 'prometheus.yml'
 docker-machine scp prometheus.yml kvstore-DO:/tmp/prometheus.yml
 docker run \
     -d \
