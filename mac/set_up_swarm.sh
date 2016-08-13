@@ -65,6 +65,12 @@ docker run \
     --publish=18080:8080 \
     --detach=true \
     google/cadvisor:latest
+docker run \
+	-d \
+	-p 9090:3000 \
+	--restart=always \
+	clabs/metrics-server
+
 echo "kvstore-DO created."
 
 
