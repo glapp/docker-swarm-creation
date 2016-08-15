@@ -13,6 +13,7 @@ docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN% --d
 FOR /f %%i IN ('docker-machine ip kvstore') DO SET KVSTORE=%%i
 FOR /f "tokens=*" %%i IN ('docker-machine env kvstore') DO %%i
 docker run -d --restart=always --net=host progrium/consul --server -bootstrap-expect 1
+docker run -d -p 9090:3000 --restart=always clabs/metrics-server
 
 REM Create swarm nodes
 docker-machine create -d digitalocean --engine-label tier=1 --engine-label region=eu --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" --swarm --swarm-master --swarm-discovery consul://%KVSTORE%:8500 DO-MASTER

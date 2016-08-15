@@ -6,6 +6,7 @@ docker-machine create -d virtualbox --virtualbox-no-vtx-check kvstore
 FOR /f %%i IN ('docker-machine ip kvstore') DO SET KVSTORE=%%i
 FOR /f "tokens=*" %%i IN ('docker-machine env kvstore') DO %%i
 docker run -d --restart=always --net=host progrium/consul --server -bootstrap-expect 1
+docker run -d -p 9090:3000 --restart=always clabs/metrics-server
 REM docker-machine ssh kvstore "echo 'ifconfig eth1 %KVSTORE% netmask 255.255.255.0 broadcast 192.168.99.255 up' | sudo tee /var/lib/boot2docker/bootsync.sh > /dev/null"
 
 REM Create swarm nodes
