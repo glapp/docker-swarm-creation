@@ -58,3 +58,5 @@ crashlytics-build.properties
 ehthumbs.db
 Thumbs.db
 
+# temp files
+mac/prometheus.yml
