@@ -1,5 +1,5 @@
 REM Remove old nodes
-docker-machine rm -y DO-MASTER AWS-01 DO-01 DO-02
+docker-machine rm -y DO-MASTER AWS-01 DO-01 DO-02 kvstore glapp
 
 REM Set credential variables
 FOR /f "tokens=*" %%i IN (..\credentials) DO SET %%i
@@ -67,19 +67,19 @@ docker run -d -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.ym
 REM Delete temp prometheus file
 DEL prometheus.yml
 
-REM Prepare local for docker deployment of the project
-docker-machine create -d virtualbox --virtualbox-no-vtx-check local
-FOR /f "tokens=*" %%i IN ('docker-machine env local') DO %%i
+REM Prepare glapp server for docker deployment of the project
+docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" glapp
+FOR /f "tokens=*" %%i IN ('docker-machine env glapp') DO %%i
 
 REM Workaround for Windows to have the home directory in the right format
 SET USR_TEMP=/%userprofile:\=/%
-SET USR=/%USR_TEMP::=/%
+SET USR=%USR_TEMP::=/%
 
 REM Copy certs
-docker-machine ssh local 'mkdir certs'
-docker-machine scp %USR%/.docker/machine/certs/ca.pem local:certs/ca.pem
-docker-machine scp %USR%/.docker/machine/certs/cert.pem local:certs/cert.pem
-docker-machine scp %USR%/.docker/machine/certs/key.pem local:certs/key.pem
+docker-machine ssh glapp 'mkdir certs'
+docker-machine scp %USR%/.docker/machine/certs/ca.pem glapp:certs/ca.pem
+docker-machine scp %USR%/.docker/machine/certs/cert.pem glapp:certs/cert.pem
+docker-machine scp %USR%/.docker/machine/certs/key.pem glapp:certs/key.pem
 
 REM Set Swarm-Master ENV
 SET SWARM_HOST=%DO_MASTER_IP%
