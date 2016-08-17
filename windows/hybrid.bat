@@ -73,14 +73,14 @@ FOR /f "tokens=*" %%i IN ('docker-machine env glapp') DO %%i
 
 REM Workaround for Windows to have the home directory in the right format
 SET USR_TEMP=/%userprofile:\=/%
-SET USR=%USR_TEMP::=/%
+SET USR=%USR_TEMP::=%
 
 REM Copy certs
-docker-machine ssh glapp 'mkdir certs'
-docker-machine scp %USR%/.docker/machine/certs/ca.pem glapp:certs/ca.pem
-docker-machine scp %USR%/.docker/machine/certs/cert.pem glapp:certs/cert.pem
-docker-machine scp %USR%/.docker/machine/certs/key.pem glapp:certs/key.pem
-
+docker-machine ssh glapp 'mkdir /swarmcerts'
+docker-machine scp %USR%/.docker/machine/certs/ca.pem glapp:/swarmcerts/ca.pem
+docker-machine scp %USR%/.docker/machine/certs/cert.pem glapp:/swarmcerts/cert.pem
+docker-machine scp %USR%/.docker/machine/certs/key.pem glapp:/swarmcerts/key.pem
+~
 REM Set Swarm-Master ENV
 SET SWARM_HOST=%DO_MASTER_IP%
 
