@@ -15,16 +15,6 @@ global:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'prometheus_name'
-    # Override the global default and scrape targets from this job every second.
-    scrape_interval: 5s
-    # scrape_timeout: 10s
-    static_configs:
-      - targets: ['MACHINE_6:19090']
-        labels:
-          group: 'prometheus_group'
-      
-
   - job_name: 'USA'
     # Override the global default and scrape targets from this job every second.
     scrape_interval: 5s
@@ -37,7 +27,7 @@ scrape_configs:
     scrape_interval: 5s
     # scrape_timeout: 10s
     static_configs:
-      - targets: ['MACHINE_1:18080', 'MACHINE_2:18080', 'MACHINE_6:18080']
+      - targets: ['MACHINE_2:18080']
       
 # Cost metrics
   - job_name: 'Cost_metrics'
