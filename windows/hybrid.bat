@@ -1,5 +1,5 @@
 REM Remove old nodes
-docker-machine rm -y DO-MASTER AWS-01 DO-01 DO-02 kvstore glapp
+docker-machine rm -y DO-MASTER AWS-01 DO-01 DO-02 kvstore
 
 REM Set credential variables
 FOR /f "tokens=*" %%i IN (..\credentials) DO SET %%i
@@ -68,7 +68,7 @@ REM Delete temp prometheus file
 DEL prometheus.yml
 
 REM Prepare glapp server for docker deployment of the project
-docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" glapp
+docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-size=2gb --digitalocean-image "debian-8-x64" glapp
 FOR /f "tokens=*" %%i IN ('docker-machine env glapp') DO %%i
 
 REM Workaround for Windows to have the home directory in the right format
@@ -80,7 +80,7 @@ docker-machine ssh glapp 'mkdir /swarmcerts'
 docker-machine scp %USR%/.docker/machine/certs/ca.pem glapp:/swarmcerts/ca.pem
 docker-machine scp %USR%/.docker/machine/certs/cert.pem glapp:/swarmcerts/cert.pem
 docker-machine scp %USR%/.docker/machine/certs/key.pem glapp:/swarmcerts/key.pem
-~
+
 REM Set Swarm-Master ENV
 SET SWARM_HOST=%DO_MASTER_IP%
 
