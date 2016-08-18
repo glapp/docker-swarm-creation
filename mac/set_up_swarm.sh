@@ -257,12 +257,12 @@ END_COMMENT
 eval $(docker-machine env kvstore-DO)
 
 cp '../prometheus_template.yml' 'prometheus.yml'
-sed -i '' s/MACHINE_1/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
+#sed -i '' s/MACHINE_1/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
 sed -i '' s/MACHINE_2/$(docker-machine ip DO-master)/g 'prometheus.yml'
 sed -i '' s/MACHINE_3/$(docker-machine ip DO-01)/g 'prometheus.yml'
 sed -i '' s/MACHINE_4/$(docker-machine ip AWS-01)/g 'prometheus.yml'
 #sed -i '' s/MACHINE_5/$(docker-machine ip gc01)/g 'prometheus.yml'
-sed -i '' s/MACHINE_6/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
+#sed -i '' s/MACHINE_6/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
 sed -i '' s/COST_METRICS/54.246.169.99/g 'prometheus.yml'
 sed -i '' s/CLICK_METRICS/$(docker-machine ip kvstore-DO)/g 'prometheus.yml'
 docker-machine scp prometheus.yml kvstore-DO:/tmp/prometheus.yml
