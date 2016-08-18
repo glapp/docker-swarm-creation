@@ -16,9 +16,9 @@ docker run -d --restart=always --net=host progrium/consul --server -bootstrap-ex
 docker run -d -p 9090:3000 --restart=always clabs/metrics-server
 
 REM Create swarm nodes
-docker-machine create -d digitalocean --engine-label tier=1 --engine-label region=eu --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" --swarm --swarm-master --swarm-discovery consul://%KVSTORE%:8500 DO-MASTER
-docker-machine create -d digitalocean --engine-label tier=1 --engine-label region=us --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN% --digitalocean-region=nyc1 --digitalocean-image "debian-8-x64" --swarm --swarm-discovery consul://%KVSTORE%:8500 DO-01
-docker-machine create -d digitalocean --engine-label tier=2 --engine-label region=eu --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" --digitalocean-size=1gb --swarm --swarm-discovery consul://%KVSTORE%:8500 DO-02
+docker-machine create -d digitalocean --engine-label tier=1 --engine-label region=eu --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" --digitalocean-size=1gb --swarm --swarm-master --swarm-discovery consul://%KVSTORE%:8500 DO-MASTER
+docker-machine create -d digitalocean --engine-label tier=1 --engine-label region=us --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN% --digitalocean-region=nyc1 --digitalocean-image "debian-8-x64" --digitalocean-size=1gb --swarm --swarm-discovery consul://%KVSTORE%:8500 DO-01
+docker-machine create -d digitalocean --engine-label tier=2 --engine-label region=eu --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-image "debian-8-x64" --digitalocean-size=2gb --swarm --swarm-discovery consul://%KVSTORE%:8500 DO-02
 docker-machine create -d amazonec2 --engine-label tier=1 --engine-label region=us --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth0:2376" --amazonec2-access-key=%AWS_ACCESS_KEY% --amazonec2-secret-key=%AWS_SECRET_KEY% --amazonec2-region=us-east-1 --amazonec2-zone=a --swarm --swarm-discovery consul://%KVSTORE%:8500 AWS-01
 
 REM Define variables
@@ -66,22 +66,5 @@ docker run -d -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.ym
 
 REM Delete temp prometheus file
 DEL prometheus.yml
-
-REM Prepare glapp server for docker deployment of the project
-docker-machine create -d digitalocean --digitalocean-access-token=%DO_TOKEN%  --digitalocean-region=ams2 --digitalocean-size=2gb --digitalocean-image "debian-8-x64" glapp
-FOR /f "tokens=*" %%i IN ('docker-machine env glapp') DO %%i
-
-REM Workaround for Windows to have the home directory in the right format
-SET USR_TEMP=/%userprofile:\=/%
-SET USR=%USR_TEMP::=%
-
-REM Copy certs
-docker-machine ssh glapp 'mkdir /swarmcerts'
-docker-machine scp %USR%/.docker/machine/certs/ca.pem glapp:/swarmcerts/ca.pem
-docker-machine scp %USR%/.docker/machine/certs/cert.pem glapp:/swarmcerts/cert.pem
-docker-machine scp %USR%/.docker/machine/certs/key.pem glapp:/swarmcerts/key.pem
-
-REM Set Swarm-Master ENV
-SET SWARM_HOST=%DO_MASTER_IP%
 
 PAUSE
