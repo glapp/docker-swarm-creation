@@ -9,9 +9,7 @@ start=$(date +"%T")
 echo "Current time : $start"
 
 echo "set enviornment variables..."
-export DO_TOKEN=<token>
-export AWS_ACCESS_KEY=<key>
-export AWS_SECRET_KEY=<key>
+source ~/sw-projects/docker-swarm-creation/credentials
 
 echo "Create kvstore-DO..."
 docker-machine create \
