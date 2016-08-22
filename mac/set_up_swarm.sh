@@ -69,7 +69,7 @@ docker run \
 	-d \
 	-p 9090:3000 \
 	--restart=always \
-	clabs/metrics-server
+	glapp/metrics-server
 
 echo "kvstore-DO created."
 

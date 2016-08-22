@@ -6,7 +6,7 @@ docker-machine create -d virtualbox --virtualbox-no-vtx-check kvstore
 FOR /f %%i IN ('docker-machine ip kvstore') DO SET KVSTORE=%%i
 FOR /f "tokens=*" %%i IN ('docker-machine env kvstore') DO %%i
 docker run -d --restart=always --net=host progrium/consul --server -bootstrap-expect 1
-docker run -d -p 9090:3000 --restart=always clabs/metrics-server
+docker run -d -p 9090:3000 --restart=always glapp/metrics-server
 
 REM Create swarm nodes
 docker-machine create -d virtualbox --virtualbox-no-vtx-check --engine-label tier=1 --engine-label region=eu --engine-opt "cluster-store consul://%KVSTORE%:8500" --engine-opt "cluster-advertise eth1:2376" --swarm --swarm-master --swarm-discovery consul://%KVSTORE%:8500 swarm-master
