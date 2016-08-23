@@ -17,6 +17,7 @@ docker-machine create \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=ams2 \
     --digitalocean-image "debian-8-x64" \
+	--digitalocean-size=1gb \
     kvstore-DO
 eval $(docker-machine env kvstore-DO)
 docker run \
@@ -55,6 +56,7 @@ docker-machine create \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=ams2 \
     --digitalocean-image "debian-8-x64" \
+	--digitalocean-size=1gb \
     --swarm \
     --swarm-master \
     --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
@@ -89,6 +91,7 @@ docker-machine create \
     --digitalocean-access-token=$DO_TOKEN \
     --digitalocean-region=nyc1 \
     --digitalocean-image "debian-8-x64" \
+	--digitalocean-size=1gb \
     --swarm \
     --swarm-discovery consul://$(docker-machine ip kvstore-DO):8500 \
     DO-01
