@@ -58,7 +58,6 @@ sed -i 's/MACHINE_1/%DO_MASTER_IP%/g' prometheus.yml
 sed -i 's/MACHINE_2/%DO_01_IP%/g' prometheus.yml
 sed -i 's/MACHINE_3/%DO_02_IP%/g' prometheus.yml
 sed -i 's/MACHINE_4/%AWS_01_IP%/g' prometheus.yml
-sed -i 's/COST_METRICS/54.246.169.99/g' prometheus.yml
 sed -i 's/CLICK_METRICS/%KVSTORE%/g' prometheus.yml
 
 docker-machine scp prometheus.yml kvstore:/tmp/prometheus.yml

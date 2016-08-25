@@ -26,14 +26,6 @@ scrape_configs:
     static_configs:
       - targets: ['MACHINE_1:18080', 'MACHINE_3:18080']
 
-  # Cost metrics
-  - job_name: 'Cost_metrics'
-    # Override the global default and scrape targets from this job every second.
-    scrape_interval: 1m
-    # scrape_timeout: 10s
-    static_configs:
-      - targets: ['COST_METRICS:80']
-
   # Click metrics
   - job_name: 'Click_metrics'
     # Override the global default and scrape targets from this job every second.
