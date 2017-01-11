@@ -1,6 +1,6 @@
-# Docker Swarm Creation
+# GLAPP Infrastructure Scripts
 
-Just throw your scripts into this repo. Don't include personal keys, though!
+Example scripts to create a Docker Swarm Infrastructure which is usable by GLAPP.
 
 ## To handle personal keys:
 * Save these keys in a separate file called ``credentials`` see credentialsSample.txt
